@@ -1,23 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subtitle Translator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-color: #00d2ff;
+            --primary-color-hover: #3a7bd5;
+            --text-main: #f0f4f8;
+            --text-muted: #a0aec0;
+            --error-color: #ff6b6b;
+            --success-color: #51cf66;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: -webkit-linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            font-size: 1rem;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+            width: 100%;
+        }
+
+        .custom-file-upload {
+            display: block;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper:hover .custom-file-upload {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+
+        input[type="submit"] {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(0, 210, 255, 0.5);
+        }
+
+        input[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        .message-container {
+            margin-top: 25px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .error-msg {
+            color: var(--error-color);
+            background: rgba(255, 107, 107, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .success-msg {
+            color: var(--text-main);
+            background: rgba(81, 207, 102, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(81, 207, 102, 0.2);
+        }
+    </style>
 </head>
-  <body>
-    <h1>Upload Your SRT File</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="subtitle"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-    <div>
-      {% if error %}
-<p style="color: red;"> error </p>
-{% endif %}
-      {%if prompt%}
-      <p>{{prompt}}</p>
-      {%endif%}
+
+<body>
+    <div class="container">
+        <h1>Upload Your SRT File</h1>
+        <p class="subtitle-desc">Select a subtitle file to start translation</p>
+
+        <form method="POST" action="" enctype="multipart/form-data">
+            <div class="file-upload-wrapper">
+                <div class="custom-file-upload">
+                    <span>Choose file...</span>
+                </div>
+                <input type="file" name="subtitle"
+                    onchange="document.querySelector('.custom-file-upload span').textContent = this.files[0] ? this.files[0].name : 'Choose file...'">
+            </div>
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+
+        <div class="message-container">
+            {% if error %}
+            <div class="error-msg"> error </div>
+            {% endif %}
+
+            {% if prompt %}
+            <div class="success-msg">{{prompt}}</div>
+            {% endif %}
+        </div>
     </div>
-  </body>
+</body>
+
 </html>
