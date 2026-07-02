@@ -11,11 +11,13 @@
       <p><input type="file" name="subtitle"></p>
       <p><input type="submit" value="Submit"></p>
     </form>
-    <div>{% if subtitle == None %}
-        <h3>NOTHING</h3>
-        
-    {% else %}
-        <p>{{subtitle}}</p>
-    {% endif %}</div>
+    <div>
+      {% if error %}
+<p style="color: red;"> error </p>
+{% endif %}
+      {%if prompt%}
+      <p>{{prompt}}</p>
+      {%endif%}
+    </div>
   </body>
 </html>
